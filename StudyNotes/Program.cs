@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
+using Npgsql;
 using StudyNotes.Components;
 using StudyNotes.Data;
 using StudyNotes.Services;
@@ -93,14 +94,91 @@ static string ResolveConnectionString(IConfiguration configuration)
     var connectionString = configuration.GetConnectionString("DefaultConnection");
     if (!string.IsNullOrWhiteSpace(connectionString))
     {
-        return connectionString;
+        return NormalizeConnectionString(connectionString);
     }
 
     var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
     if (!string.IsNullOrWhiteSpace(databaseUrl))
     {
-        return databaseUrl;
+        return NormalizeConnectionString(databaseUrl);
     }
 
     throw new InvalidOperationException("PostgreSQL connection string 'DefaultConnection' or the 'DATABASE_URL' environment variable is not set.");
+}
+
+// Render injects PostgreSQL connection strings in URI form (postgres://user:pass@host:port/db),
+// which Npgsql cannot parse. Convert to Npgsql's key=value format.
+static string NormalizeConnectionString(string value)
+{
+    if (string.IsNullOrWhiteSpace(value))
+    {
+        return value;
+    }
+
+    var trimmed = value.Trim();
+
+    if (!(trimmed.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) ||
+          trimmed.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase)))
+    {
+        return value;
+    }
+
+    var uri = new Uri(trimmed);
+
+    var username = "";
+    var password = "";
+    if (!string.IsNullOrEmpty(uri.UserInfo))
+    {
+        var userInfo = uri.UserInfo.Split(':', 2);
+        username = Uri.UnescapeDataString(userInfo[0]);
+        if (userInfo.Length > 1)
+        {
+            password = Uri.UnescapeDataString(userInfo[1]);
+        }
+    }
+
+    var builder = new NpgsqlConnectionStringBuilder
+    {
+        Host = uri.Host,
+        Port = uri.Port > 0 ? uri.Port : 5432,
+        Database = Uri.UnescapeDataString(uri.AbsolutePath.TrimStart('/')),
+        Username = username,
+        Password = password
+    };
+
+    foreach (var pair in uri.Query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries))
+    {
+        var kv = pair.Split('=', 2);
+        var key = kv[0].ToLowerInvariant();
+        var val = kv.Length > 1 ? Uri.UnescapeDataString(kv[1]) : "";
+
+        switch (key)
+        {
+            case "sslmode":
+            case "ssl-mode":
+                if (Enum.TryParse<SslMode>(val.Replace("-", ""), true, out var sslMode))
+                {
+                    builder.SslMode = sslMode;
+                }
+                break;
+            case "sslrootcert":
+                builder.RootCertificate = val;
+                break;
+            case "trust_server_certificate":
+            case "trustservercertificate":
+                builder.TrustServerCertificate = val.Equals("true", StringComparison.OrdinalIgnoreCase);
+                break;
+            case "connect_timeout":
+                if (int.TryParse(val, out var timeout))
+                {
+                    builder.Timeout = timeout;
+                }
+                break;
+            case "application_name":
+                builder.ApplicationName = val;
+                break;
+        }
+    }
+
+    return builder.ConnectionString;
 }
