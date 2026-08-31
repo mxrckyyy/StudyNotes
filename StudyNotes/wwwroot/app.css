@@ -83,6 +83,8 @@ body {
 }
 
 .sn-main-content {
+    width: 100%;
+    min-width: 0;
     padding: calc(var(--mud-appbar-height, 64px) + 28px) var(--sn-gutter) 48px !important;
     background:
         radial-gradient(1200px 480px at 15% -8%, color-mix(in srgb, var(--mud-palette-primary, #4f46e5) 5%, transparent), transparent 60%),
@@ -90,7 +92,9 @@ body {
 }
 
 .sn-content-shell {
+    width: 100%;
     max-width: var(--sn-content-max);
+    min-width: 0;
     margin: 0 auto;
 }
 
@@ -349,6 +353,7 @@ body {
     letter-spacing: -0.01em;
     line-height: 1.35;
     color: var(--mud-palette-text-primary);
+    overflow-wrap: break-word;
 }
 
 .sn-note-body {
@@ -616,6 +621,63 @@ body {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+/* ---------- Responsive grid ----------
+   Fluid CSS grid: 1 column on mobile (< 640px), 2 columns on tablet
+   (640px–1024px), 3 columns on desktop (≥ 1024px). minmax(0, 1fr) keeps
+   tracks from overflowing, so cards scale instead of scrolling sideways. */
+.sn-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: clamp(14px, 2vw, 20px);
+    min-width: 0;
+}
+
+.sn-grid > * {
+    min-width: 0;
+    max-width: 100%;
+}
+
+@media (min-width: 640px) {
+    .sn-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .sn-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* ---------- Mobile layout polish (< 640px) ---------- */
+@media (max-width: 639px) {
+    .sn-main-content {
+        padding: calc(var(--mud-appbar-height, 64px) + 16px) 16px 40px !important;
+    }
+
+    .sn-section-head {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .sn-stat-card {
+        padding: 18px 20px;
+    }
+
+    .sn-stat-value {
+        font-size: 1.6rem;
+    }
+
+    /* Thumb-friendly touch targets for navigation */
+    .sn-nav .mud-nav-link {
+        min-height: 46px;
+    }
+
+    .sn-profile {
+        padding: 14px 12px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {

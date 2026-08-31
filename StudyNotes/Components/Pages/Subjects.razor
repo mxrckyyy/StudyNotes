@@ -29,28 +29,26 @@
 }
 else
 {
-    <MudGrid Spacing="3">
+    <div class="sn-grid">
         @foreach (var subject in subjects)
         {
-            <MudItem xs="12" sm="6" md="4">
-                <MudPaper Elevation="0" Outlined="true" Class="sn-card sn-card-hover pa-4 d-flex justify-space-between align-center">
-                    <div class="d-flex align-center" style="gap: 14px;">
-                        <div class="sn-subject-icon">
-                            <MudIcon Icon="@Icons.Material.Filled.Book" Size="Size.Medium" />
-                        </div>
-                        <div>
-                            <MudText Typo="Typo.subtitle2" Class="font-weight-bold sn-clamp-2">@subject.Name</MudText>
-                            <div class="d-flex align-center gap-2 mt-1">
-                                <span class="sn-count-pill">@(subject.Notes?.Count ?? 0)</span>
-                                <MudText Typo="Typo.caption" Color="Color.Secondary">@(subject.Notes?.Count == 1 ? "note" : "notes")</MudText>
-                            </div>
+            <MudPaper Elevation="0" Outlined="true" Class="sn-card sn-card-hover pa-4 d-flex justify-space-between align-center">
+                <div class="d-flex align-center" style="gap: 14px; min-width: 0;">
+                    <div class="sn-subject-icon">
+                        <MudIcon Icon="@Icons.Material.Filled.Book" Size="Size.Medium" />
+                    </div>
+                    <div>
+                        <MudText Typo="Typo.subtitle2" Class="font-weight-bold sn-clamp-2">@subject.Name</MudText>
+                        <div class="d-flex align-center gap-2 mt-1">
+                            <span class="sn-count-pill">@(subject.Notes?.Count ?? 0)</span>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">@(subject.Notes?.Count == 1 ? "note" : "notes")</MudText>
                         </div>
                     </div>
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Class="sn-action-danger" OnClick="@(() => DeleteSubject(subject))" title="Delete subject" />
-                </MudPaper>
-            </MudItem>
+                </div>
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" Class="sn-action-danger" OnClick="@(() => DeleteSubject(subject))" title="Delete subject" />
+            </MudPaper>
         }
-    </MudGrid>
+    </div>
 }
 
 @code {

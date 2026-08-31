@@ -16,17 +16,11 @@
 </div>
 
 <!-- Quick Stats Summary Cards -->
-<MudGrid Spacing="3" Class="mb-4">
-    <MudItem xs="12" sm="6" md="4">
-        <StatCard Value="@totalNotesCount" Title="Total Notes" Icon="@Icons.Material.Filled.Description" Tone="primary" />
-    </MudItem>
-    <MudItem xs="12" sm="6" md="4">
-        <StatCard Value="@pinnedNotesCount" Title="Pinned Notes" Icon="@Icons.Material.Filled.PushPin" Tone="warning" />
-    </MudItem>
-    <MudItem xs="12" sm="6" md="4">
-        <StatCard Value="@totalSubjectsCount" Title="Subjects" Icon="@Icons.Material.Filled.Bookmark" Tone="success" />
-    </MudItem>
-</MudGrid>
+<div class="sn-grid mb-6">
+    <StatCard Value="@totalNotesCount" Title="Total Notes" Icon="@Icons.Material.Filled.Description" Tone="primary" />
+    <StatCard Value="@pinnedNotesCount" Title="Pinned Notes" Icon="@Icons.Material.Filled.PushPin" Tone="warning" />
+    <StatCard Value="@totalSubjectsCount" Title="Subjects" Icon="@Icons.Material.Filled.Bookmark" Tone="success" />
+</div>
 
 <!-- Recent Notes Section -->
 <div class="sn-section-head">
@@ -40,14 +34,12 @@
 }
 else
 {
-    <MudGrid Spacing="3">
+    <div class="sn-grid">
         @foreach (var note in recentNotes)
         {
-            <MudItem xs="12" sm="6" md="4">
-                <NoteCard Note="note" />
-            </MudItem>
+            <NoteCard Note="note" />
         }
-    </MudGrid>
+    </div>
 }
 
 @code {

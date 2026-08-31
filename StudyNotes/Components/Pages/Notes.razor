@@ -42,14 +42,12 @@
 }
 else
 {
-    <MudGrid Spacing="3">
+    <div class="sn-grid">
         @foreach (var note in filteredNotes)
         {
-            <MudItem xs="12" sm="6" md="4">
-                <NoteCard Note="note" />
-            </MudItem>
+            <NoteCard Note="note" />
         }
-    </MudGrid>
+    </div>
 }
 
 @code {
