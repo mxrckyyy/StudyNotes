@@ -47,6 +47,25 @@
     [Parameter] public Note Note { get; set; } = default!;
     [Parameter] public EventCallback OnChanged { get; set; }
 
+    // React.memo equivalent: only re-render when the Note instance or the
+    // OnChanged callback actually changes, so layout state toggles (sidebar,
+    // theme) do not rebuild every note card on the page.
+    private Note? _lastNote;
+    private bool _lastHasCallback;
+
+    protected override bool ShouldRender()
+    {
+        var hasCallback = OnChanged.HasDelegate;
+        if (ReferenceEquals(_lastNote, Note) && _lastHasCallback == hasCallback)
+        {
+            return false;
+        }
+
+        _lastNote = Note;
+        _lastHasCallback = hasCallback;
+        return true;
+    }
+
     private async Task TogglePin()
     {
         await NoteService.TogglePinAsync(Note.Id);

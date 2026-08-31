@@ -154,6 +154,19 @@ body {
     border-right: 1px solid var(--mud-palette-lines-default, #e6e8f0);
 }
 
+/* Slide animation driven by CSS transforms (GPU-composited for 60fps),
+   instead of per-frame JS animation. */
+.mud-drawer.sn-drawer {
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+    transition: transform 240ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mud-drawer-overlay {
+    will-change: opacity;
+    transition: opacity 240ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 .sn-drawer-header {
     padding: 0 20px;
     min-height: 64px;

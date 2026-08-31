@@ -1,4 +1,6 @@
-﻿@inherits LayoutComponentBase
+﻿@implements IDisposable
+@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
 
 <MudThemeProvider Theme="_theme" @bind-IsDarkMode="_darkMode" ObserveSystemDarkModeChange="false" />
 <MudPopoverProvider />
@@ -32,12 +34,12 @@
                         <span class="sn-brand-tagline">Your study companion</span>
                     </div>
                 </div>
-                <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Default" Size="Size.Small" OnClick="@CloseDrawer" title="Close navigation" />
+                <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Default" Size="Size.Small" OnClick="@CloseSidebar" title="Close navigation" />
             </div>
 
             <!-- Navigation -->
             <div class="sn-drawer-body d-flex flex-column">
-                <NavMenu OnLinkClick="@CloseDrawer" />
+                <NavMenu OnLinkClick="@CloseSidebar" />
             </div>
 
             <div class="sn-drawer-footer">
@@ -169,7 +171,11 @@
         _drawerOpen = !_drawerOpen;
     }
 
-    private void CloseDrawer()
+    // State setter for the sidebar: every drawer item calls this (via the
+    // OnLinkClick callback on NavMenu), the app-bar common menu sets the opposite,
+    // the MudDrawer temporary backdrop closes it on overlay click, and any
+    // navigation (LocationChanged) force-closes it so no route leaves it open.
+    private void CloseSidebar()
     {
         _drawerOpen = false;
     }
@@ -177,5 +183,24 @@
     private void ToggleTheme()
     {
         _darkMode = !_darkMode;
+    }
+
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        if (_drawerOpen)
+        {
+            _drawerOpen = false;
+            _ = InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
     }
 }

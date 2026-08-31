@@ -20,4 +20,26 @@
         "success" => "sn-tone-success",
         _ => string.Empty
     };
+
+    // React.memo equivalent: skip re-rendering when the input parameters
+    // (all primitives) have not changed, so sidebar/theme toggles in the
+    // layout do not rebuild the stat cards on the dashboard.
+    private int _lastValue;
+    private string _lastTitle = string.Empty;
+    private string _lastIcon = string.Empty;
+    private string _lastTone = string.Empty;
+
+    protected override bool ShouldRender()
+    {
+        if (_lastValue == Value && _lastTitle == Title && _lastIcon == Icon && _lastTone == Tone)
+        {
+            return false;
+        }
+
+        _lastValue = Value;
+        _lastTitle = Title;
+        _lastIcon = Icon;
+        _lastTone = Tone;
+        return true;
+    }
 }
