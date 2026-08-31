@@ -221,6 +221,12 @@ body {
     font-weight: 600;
 }
 
+/* Press feedback on nav items without waiting on the server. */
+.sn-nav .mud-nav-link:active {
+    background-color: color-mix(in srgb, var(--mud-palette-primary, #4f46e5) 16%, transparent);
+    transition-duration: 60ms;
+}
+
 .sn-nav .mud-nav-link.active .mud-icon-root,
 .sn-nav .mud-nav-link.sn-nav-active .mud-icon-root {
     color: var(--mud-palette-primary, #4f46e5);
@@ -293,6 +299,7 @@ body {
     background: var(--mud-palette-surface);
     border: 1px solid var(--mud-palette-lines-default, #e6e8f0);
     border-radius: var(--sn-radius);
+    will-change: transform;
     transition: transform var(--sn-duration) var(--sn-ease), box-shadow var(--sn-duration) var(--sn-ease), border-color var(--sn-duration) var(--sn-ease);
 }
 
@@ -300,6 +307,13 @@ body {
     transform: translateY(-3px);
     box-shadow: var(--sn-shadow-md);
     border-color: color-mix(in srgb, var(--mud-palette-primary, #4f46e5) 25%, var(--mud-palette-lines-default, #e6e8f0));
+}
+
+/* Instant press feedback: scale down while the pointer is down, before any
+   server round-trip completes, so clicks never feel laggy. */
+.sn-card.sn-card-hover:active {
+    transform: translateY(-1px) scale(0.985);
+    transition-duration: 90ms;
 }
 
 /* Stat cards */

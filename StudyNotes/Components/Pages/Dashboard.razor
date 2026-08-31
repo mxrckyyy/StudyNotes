@@ -16,30 +16,37 @@
 </div>
 
 <!-- Quick Stats Summary Cards -->
-<div class="sn-grid mb-6">
-    <StatCard Value="@totalNotesCount" Title="Total Notes" Icon="@Icons.Material.Filled.Description" Tone="primary" />
-    <StatCard Value="@pinnedNotesCount" Title="Pinned Notes" Icon="@Icons.Material.Filled.PushPin" Tone="warning" />
-    <StatCard Value="@totalSubjectsCount" Title="Subjects" Icon="@Icons.Material.Filled.Bookmark" Tone="success" />
-</div>
-
-<!-- Recent Notes Section -->
-<div class="sn-section-head">
-    <MudText Typo="Typo.h6" Class="sn-section-title">Recent Notes</MudText>
-    <MudButton Variant="Variant.Text" Color="Color.Primary" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => NavigationManager.NavigateTo("/notes"))">View all</MudButton>
-</div>
-
-@if (recentNotes == null || !recentNotes.Any())
+@if (_pageLoaded)
 {
-    <EmptyState Icon="@Icons.Material.Filled.Description" Title="No Notes Yet" Message="Click '+ New Note' to create your first study note." />
+    <div class="sn-grid mb-6">
+        <StatCard Value="@totalNotesCount" Title="Total Notes" Icon="@Icons.Material.Filled.Description" Tone="primary" />
+        <StatCard Value="@pinnedNotesCount" Title="Pinned Notes" Icon="@Icons.Material.Filled.PushPin" Tone="warning" />
+        <StatCard Value="@totalSubjectsCount" Title="Subjects" Icon="@Icons.Material.Filled.Bookmark" Tone="success" />
+    </div>
+
+    <!-- Recent Notes Section -->
+    <div class="sn-section-head">
+        <MudText Typo="Typo.h6" Class="sn-section-title">Recent Notes</MudText>
+        <MudButton Variant="Variant.Text" Color="Color.Primary" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => NavigationManager.NavigateTo("/notes"))">View all</MudButton>
+    </div>
+
+    @if (recentNotes == null || !recentNotes.Any())
+    {
+        <EmptyState Icon="@Icons.Material.Filled.Description" Title="No Notes Yet" Message="Click '+ New Note' to create your first study note." />
+    }
+    else
+    {
+        <div class="sn-grid">
+            @foreach (var note in recentNotes)
+            {
+                <NoteCard Note="note" />
+            }
+        </div>
+    }
 }
 else
 {
-    <div class="sn-grid">
-        @foreach (var note in recentNotes)
-        {
-            <NoteCard Note="note" />
-        }
-    </div>
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="mb-6" />
 }
 
 @code {
@@ -47,10 +54,20 @@ else
     private int totalNotesCount;
     private int pinnedNotesCount;
     private int totalSubjectsCount;
+    private bool _pageLoaded;
 
-    protected override async Task OnInitializedAsync()
+    // Keep the initial render synchronous and fast so navigation feels
+    // instant; fetch data only after the first frame has been flushed to
+    // the client (the progress bar shows immediate feedback meanwhile).
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await LoadDashboardData();
+        if (firstRender && !_pageLoaded)
+        {
+            _pageLoaded = true;
+            StateHasChanged();
+            await LoadDashboardData();
+            StateHasChanged();
+        }
     }
 
     private async Task LoadDashboardData()

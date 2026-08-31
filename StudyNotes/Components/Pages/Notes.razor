@@ -20,7 +20,8 @@
 <MudPaper Elevation="0" Outlined="true" Class="sn-toolbar mb-6">
     <div class="d-flex flex-column flex-md-row gap-4">
         <MudTextField T="string" Class="sn-search" Style="width: 100%;"
-                      Label="Search" @bind-Value="SearchString" Placeholder="Search by title or content..."
+                      Label="Search" Value="SearchString" ValueChanged="OnSearchChanged"
+                      Placeholder="Search by title or content..."
                       Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"
                       Immediate="true" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true" OnClearButtonClick="ResetSearch" />
         <MudSelect T="int?" Class="sn-filter" Style="width: 100%; max-width: 320px;"
@@ -36,7 +37,11 @@
 </MudPaper>
 
 <!-- Notes Grid View -->
-@if (filteredNotes == null || !filteredNotes.Any())
+@if (!_pageLoaded)
+{
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" />
+}
+else if (filteredNotes == null || !filteredNotes.Any())
 {
     <EmptyState Icon="@Icons.Material.Filled.Description" Title="No Notes Found" Message="No notes match your search criteria. Try creating one!" />
 }
@@ -54,15 +59,32 @@ else
     private List<Note> allNotes = new();
     private List<Note> filteredNotes = new();
     private List<Subject> subjects = new();
+    private bool _pageLoaded;
 
     private string _searchString = string.Empty;
-    private string SearchString
+    private string SearchString => _searchString;
+
+    // Debounce keystrokes (300ms) so filtering/sorting and the resulting
+    // re-render only happen after the user pauses typing, instead of on
+    // every keystroke which caused input lag and re-render storms.
+    private CancellationTokenSource? _searchCts;
+
+    private async Task OnSearchChanged(string value)
     {
-        get => _searchString;
-        set
+        _searchString = value;
+        _searchCts?.Cancel();
+        var cts = _searchCts = new CancellationTokenSource();
+        try
         {
-            _searchString = value;
-            FilterNotes();
+            await Task.Delay(300, cts.Token);
+            if (!cts.IsCancellationRequested)
+            {
+                FilterNotes();
+            }
+        }
+        catch (TaskCanceledException)
+        {
+            // A newer keystroke superseded this one.
         }
     }
 
@@ -77,9 +99,17 @@ else
         }
     }
 
-    protected override async Task OnInitializedAsync()
+    // Keep the initial render synchronous and fast so navigation feels
+    // instant; fetch data only after the first frame has been flushed.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await LoadData();
+        if (firstRender && !_pageLoaded)
+        {
+            _pageLoaded = true;
+            StateHasChanged();
+            await LoadData();
+            StateHasChanged();
+        }
     }
 
     private async Task LoadData()
@@ -109,7 +139,9 @@ else
 
     private void ResetSearch()
     {
-        SearchString = string.Empty;
+        _searchCts?.Cancel();
+        _searchString = string.Empty;
+        FilterNotes();
     }
 
     private async Task OpenCreateNoteDialog()
