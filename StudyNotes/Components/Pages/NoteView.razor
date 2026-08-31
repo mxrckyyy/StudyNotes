@@ -4,7 +4,9 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
-<MudButton StartIcon="@Icons.Material.Filled.ArrowBack" OnClick="Back" Class="mb-4">Back to Notes</MudButton>
+<div class="mb-5">
+    <MudButton StartIcon="@Icons.Material.Filled.ArrowBack" OnClick="Back" Variant="Variant.Text" Color="Color.Default" Class="pl-0 mb-3">Back to Notes</MudButton>
+</div>
 
 @if (note == null)
 {
@@ -12,31 +14,48 @@
 }
 else
 {
-    <MudPaper Class="pa-8" Elevation="0" Outlined="true" Style="border-radius: 12px;">
-        <div class="d-flex justify-space-between align-center mb-2">
-            <MudText Typo="Typo.h3" Class="font-weight-bold">@note.Title</MudText>
-            <div>
+    <MudPaper Elevation="0" Outlined="true" Class="sn-card pa-7" Style="max-width: 820px;">
+        <!-- Title + actions -->
+        <div class="d-flex flex-wrap justify-space-between align-start gap-4 mb-4">
+            <MudText Typo="Typo.h3" Class="sn-page-title">@note.Title</MudText>
+
+            <div class="d-flex align-center flex-shrink-0" style="gap: 6px;">
                 <MudIconButton Icon="@(note.IsPinned ? Icons.Material.Filled.PushPin : Icons.Material.Outlined.PushPin)"
-                               Color="@(note.IsPinned ? Color.Primary : Color.Default)" OnClick="TogglePin" />
+                               Color="@(note.IsPinned ? Color.Primary : Color.Default)"
+                               title="@(note.IsPinned ? "Unpin note" : "Pin note")"
+                               OnClick="TogglePin" />
                 <MudIconButton Icon="@(note.IsFavorite ? Icons.Material.Filled.Star : Icons.Material.Outlined.StarBorder)"
-                               Color="@(note.IsFavorite ? Color.Warning : Color.Default)" OnClick="ToggleFavorite" />
-                <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="EditNote" Class="ml-2">Edit</MudButton>
-                <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="DeleteNote" Class="ml-2">Delete</MudButton>
+                               Color="@(note.IsFavorite ? Color.Warning : Color.Default)"
+                               title="@(note.IsFavorite ? "Remove from favorites" : "Add to favorites")"
+                               OnClick="ToggleFavorite" />
+                <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="EditNote" StartIcon="@Icons.Material.Filled.Edit" Class="ml-2">Edit</MudButton>
+                <MudButton Variant="Variant.Outlined" OnClick="DeleteNote" StartIcon="@Icons.Material.Filled.Delete" Class="sn-btn-danger ml-1">Delete</MudButton>
             </div>
         </div>
 
-        <div class="d-flex align-center gap-2 mb-6">
-            <MudChip T="string" Color="Color.Primary" Variant="Variant.Text">📚 @(note.Subject?.Name ?? "Unassigned")</MudChip>
-            <MudText Typo="Typo.caption" Color="Color.Secondary">Updated @note.UpdatedAt.ToString("MMM dd, yyyy")</MudText>
+        <!-- Metadata row -->
+        <div class="sn-meta-row mb-6">
+            <MudChip T="string" Color="Color.Primary" Variant="Variant.Text" Size="Size.Small">@(note.Subject?.Name ?? "Unassigned")</MudChip>
+            <span class="sn-note-meta">Created @note.CreatedAt.ToString("MMM d, yyyy")</span>
+            <span class="sn-note-meta">Updated @note.UpdatedAt.ToString("MMM d, yyyy")</span>
         </div>
 
         <MudDivider Class="mb-6" />
 
-        <MudText Typo="Typo.body1" Style="white-space: pre-line; line-height: 1.8;" Class="mb-8">@note.Content</MudText>
+        <!-- Reading content -->
+        <MudText Typo="Typo.body1" Class="sn-reading mb-8">@note.Content</MudText>
 
         @if (!string.IsNullOrEmpty(note.Tags))
         {
-            <MudText Typo="Typo.body2" Color="Color.Secondary">@note.Tags</MudText>
+            <div class="mb-4">
+                <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-2 d-block">Tags</MudText>
+                <div>
+                    @foreach (var tag in note.Tags.Split(new[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        <span class="sn-tag-chip">@tag</span>
+                    }
+                </div>
+            </div>
         }
     </MudPaper>
 }

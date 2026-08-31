@@ -1,13 +1,45 @@
 ﻿@page "/settings"
 
-<MudText Typo="Typo.h4" Class="font-weight-bold mb-6">Settings</MudText>
+<div class="sn-page-heading mb-6">
+    <MudText Typo="Typo.h4" Class="sn-page-title">Settings</MudText>
+    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="sn-page-subtitle">Your profile and app details.</MudText>
+</div>
 
-<MudPaper Class="pa-6" Elevation="0" Outlined="true" Style="border-radius: 12px;">
-    <MudText Typo="Typo.h6" Class="font-weight-bold mb-4">Student Profile</MudText>
+<MudGrid Spacing="3">
+    <MudItem xs="12" md="7">
+        <MudPaper Elevation="0" Outlined="true" Class="sn-card pa-6 h-100">
+            <div class="d-flex align-center gap-3 mb-6">
+                <div class="sn-profile-avatar" style="width: 56px; height: 56px; font-size: 1.25rem;">S</div>
+                <div>
+                    <MudText Typo="Typo.subtitle1" Class="font-weight-bold">Student Profile</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Account information</MudText>
+                </div>
+            </div>
 
-    <MudTextField Label="Student Name" Value="@("Student")" Variant="Variant.Outlined" Class="mb-4" ReadOnly="true" />
-    <MudTextField Label="Database Storage" Value="@("SQLite (studynotes.db)")" Variant="Variant.Outlined" Class="mb-6" ReadOnly="true" />
+            <MudTextField Label="Student Name" Value="@("Student")" Variant="Variant.Outlined" Class="mb-4" ReadOnly="true" />
+            <MudTextField Label="Database Storage" Value="@("SQLite (studynotes.db)")" Variant="Variant.Outlined" ReadOnly="true" />
+        </MudPaper>
+    </MudItem>
 
-    <MudText Typo="Typo.subtitle2" Class="mb-2">Application Details</MudText>
-    <MudText Typo="Typo.body2" Color="Color.Secondary">StudyNotes v1.0 — Minimalist Student Notes Organizer</MudText>
-</MudPaper>
+    <MudItem xs="12" md="5">
+        <MudPaper Elevation="0" Outlined="true" Class="sn-card pa-6 h-100">
+            <MudText Typo="Typo.subtitle1" Class="font-weight-bold mb-5">Application Details</MudText>
+
+            <div class="d-flex align-center gap-3 mb-5">
+                <div class="sn-stat-icon" style="width: 42px; height: 42px;">
+                    <MudIcon Icon="@Icons.Material.Filled.Info" Size="Size.Medium" />
+                </div>
+                <div>
+                    <MudText Typo="Typo.body2" Class="font-weight-bold">StudyNotes v1.0</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Minimalist Student Notes Organizer</MudText>
+                </div>
+            </div>
+
+            <MudDivider Class="mb-5" />
+
+            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                Your notes are stored locally in an embedded SQLite database, so your study material stays on your device.
+            </MudText>
+        </MudPaper>
+    </MudItem>
+</MudGrid>

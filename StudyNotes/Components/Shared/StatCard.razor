@@ -1,9 +1,23 @@
-﻿<MudPaper Class="pa-4 d-flex flex-column align-center justify-center" Elevation="0" Outlined="true" Style="border-radius: 12px;">
-    <MudText Typo="Typo.h3" Color="Color.Primary" Style="font-weight: 700;">@Value</MudText>
-    <MudText Typo="Typo.body2" Color="Color.Secondary">@Title</MudText>
+﻿<MudPaper Elevation="0" Outlined="true" Class="sn-card sn-card-hover sn-stat-card">
+    <div>
+        <div class="sn-stat-label">@Title</div>
+        <div class="sn-stat-value">@Value</div>
+    </div>
+    <div class="sn-stat-icon @(ToneCss)">
+        <MudIcon Icon="@Icon" Size="Size.Medium" />
+    </div>
 </MudPaper>
 
 @code {
     [Parameter] public int Value { get; set; }
     [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string Icon { get; set; } = Icons.Material.Filled.Description;
+    [Parameter] public string Tone { get; set; } = "primary";
+
+    private string ToneCss => Tone switch
+    {
+        "warning" => "sn-tone-warning",
+        "success" => "sn-tone-success",
+        _ => string.Empty
+    };
 }

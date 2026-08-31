@@ -1,7 +1,10 @@
 ﻿@page "/pinned"
 @inject NoteService NoteService
 
-<MudText Typo="Typo.h4" Class="font-weight-bold mb-6">Pinned Notes</MudText>
+<div class="sn-page-heading mb-6">
+    <MudText Typo="Typo.h4" Class="sn-page-title">Pinned Notes</MudText>
+    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="sn-page-subtitle">Important notes kept at the top of your mind.</MudText>
+</div>
 
 @if (!pinnedNotes.Any())
 {
@@ -9,7 +12,7 @@
 }
 else
 {
-    <MudGrid GutterSize="GutterSize.Small">
+    <MudGrid Spacing="3">
         @foreach (var note in pinnedNotes)
         {
             <MudItem xs="12" sm="6" md="4">

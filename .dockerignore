@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+.git/
+.github/
+.vs/
+.idea/
+*.user
+*.suo
+studynotes.db
+studynotes.db-*
+appsettings.*.json.encrypted

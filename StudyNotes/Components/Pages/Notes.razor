@@ -6,31 +6,34 @@
 @inject SubjectService SubjectService
 @inject IDialogService DialogService
 
-<MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Spacing="3" Class="mb-4">
-    <div>
-        <MudText Typo="Typo.h4" Class="font-weight-bold">All Notes</MudText>
-        <MudText Typo="Typo.body1" Color="Color.Secondary">Manage and organize your study notes.</MudText>
+<div class="d-flex flex-wrap align-center justify-space-between gap-4 mb-6">
+    <div class="sn-page-heading">
+        <MudText Typo="Typo.h4" Class="sn-page-title">All Notes</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="sn-page-subtitle">Manage and organize your study notes.</MudText>
     </div>
     <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateNoteDialog">
-        + Create New Note
+        New Note
     </MudButton>
-</MudStack>
+</div>
 
 <!-- Search & Filter Controls -->
-<MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3" Class="align-center my-4">
-    <MudItem xs="12" md="8">
-        <MudTextField T="string" Label="Search" @bind-Value="SearchString" Placeholder="Search notes..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Immediate="true" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true" OnClearButtonClick="ResetSearch" FullWidth="true" />
-    </MudItem>
-    <MudItem xs="12" md="4">
-        <MudSelect T="int?" Label="Filter by Subject" @bind-Value="SelectedSubjectId" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true" FullWidth="true">
+<MudPaper Elevation="0" Outlined="true" Class="sn-toolbar mb-6">
+    <div class="d-flex flex-column flex-md-row gap-4">
+        <MudTextField T="string" Class="sn-search" Style="width: 100%;"
+                      Label="Search" @bind-Value="SearchString" Placeholder="Search by title or content..."
+                      Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"
+                      Immediate="true" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true" OnClearButtonClick="ResetSearch" />
+        <MudSelect T="int?" Class="sn-filter" Style="width: 100%; max-width: 320px;"
+                   Label="Filter by Subject" @bind-Value="SelectedSubjectId" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true">
             <MudSelectItem T="int?" Value="@(null)">All Subjects</MudSelectItem>
             @foreach (var subject in subjects)
             {
                 <MudSelectItem T="int?" Value="@((int?)subject.Id)">@subject.Name</MudSelectItem>
             }
         </MudSelect>
-    </MudItem>
-</MudStack>
+    </div>
+    <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-3">Showing @filteredNotes.Count note@(filteredNotes.Count == 1 ? "" : "s")</MudText>
+</MudPaper>
 
 <!-- Notes Grid View -->
 @if (filteredNotes == null || !filteredNotes.Any())

@@ -4,15 +4,25 @@
 
 <MudDialog>
     <DialogContent>
+        <div class="d-flex align-center gap-3 mb-2 sn-fade">
+            <div class="sn-empty-icon" style="flex: 0 0 auto;">
+                <MudIcon Icon="@Icons.Material.Filled.NoteAdd" Size="Size.Medium" />
+            </div>
+            <div>
+                <MudText Typo="Typo.subtitle1" Class="font-weight-bold">Create a new note</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">Name it, file it under a subject, and start writing.</MudText>
+            </div>
+        </div>
+
         <EditForm Model="note" OnValidSubmit="SaveNote">
             <DataAnnotationsValidator />
-            <MudGrid Spacing="3">
+            <MudGrid Spacing="3" Class="mt-1">
                 <MudItem xs="12">
                     <MudTextField Label="Title" @bind-Value="note.Title" For="@(() => note.Title)" Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12">
-                    <MudSelect T="int" Label="Subject" @bind-Value="note.SubjectId" For="@(() => note.SubjectId)" Variant="Variant.Outlined">
-                        <MudSelectItem T="int" Value="0">Select Subject</MudSelectItem>
+                    <MudSelect T="int" Label="Subject" @bind-Value="note.SubjectId" For="@(() => note.SubjectId)" Variant="Variant.Outlined" HelperText="Optional — pick a subject to keep things organized.">
+                        <MudSelectItem T="int" Value="0">No subject</MudSelectItem>
                         @foreach (var s in subjects)
                         {
                             <MudSelectItem T="int" Value="@s.Id">@s.Name</MudSelectItem>
@@ -27,7 +37,7 @@
     </DialogContent>
     <DialogActions>
         <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="Cancel">Cancel</MudButton>
-        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveNote">SAVE NOTE</MudButton>
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveNote" StartIcon="@Icons.Material.Filled.Save">Save Note</MudButton>
     </DialogActions>
 </MudDialog>
 

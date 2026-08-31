@@ -1,7 +1,10 @@
 ﻿@page "/favorites"
 @inject NoteService NoteService
 
-<MudText Typo="Typo.h4" Class="font-weight-bold mb-6">Favorite Notes</MudText>
+<div class="sn-page-heading mb-6">
+    <MudText Typo="Typo.h4" Class="sn-page-title">Favorite Notes</MudText>
+    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="sn-page-subtitle">Notes you starred for quick access.</MudText>
+</div>
 
 @if (!favoriteNotes.Any())
 {
@@ -9,7 +12,7 @@
 }
 else
 {
-    <MudGrid GutterSize="GutterSize.Small">
+    <MudGrid Spacing="3">
         @foreach (var note in favoriteNotes)
         {
             <MudItem xs="12" sm="6" md="4">

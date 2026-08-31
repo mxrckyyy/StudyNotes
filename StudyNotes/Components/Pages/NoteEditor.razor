@@ -5,36 +5,43 @@
 @inject NavigationManager Navigation
 @inject ISnackbar Snackbar
 
-<MudButton StartIcon="@Icons.Material.Filled.ArrowBack" OnClick="Back" Class="mb-4">Back</MudButton>
+<div class="mb-5">
+    <MudButton StartIcon="@Icons.Material.Filled.ArrowBack" OnClick="Back" Variant="Variant.Text" Color="Color.Default" Class="pl-0 mb-3">Back</MudButton>
 
-<MudText Typo="Typo.h4" Class="font-weight-bold mb-6">@(Id == 0 ? "New Note" : "Edit Note")</MudText>
+    <MudText Typo="Typo.h4" Class="sn-page-title mb-1">@(Id == 0 ? "New Note" : "Edit Note")</MudText>
+    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="sn-page-subtitle">@(Id == 0 ? "Write down what you learned while it's fresh." : "Refine the details of this note.")</MudText>
+</div>
 
 <EditForm Model="note" OnValidSubmit="SaveNote">
     <DataAnnotationsValidator />
 
-    <MudPaper Class="pa-6" Elevation="0" Outlined="true" Style="border-radius: 12px;">
-        <MudTextField Label="Title" @bind-Value="note.Title" For="@(() => note.Title)" Variant="Variant.Outlined" Class="mb-4" />
+    <MudPaper Elevation="0" Outlined="true" Class="sn-card pa-6" Style="max-width: 760px;">
+        <div class="mb-6">
+            <MudText Typo="Typo.body2" Class="font-weight-bold mb-2">Basics</MudText>
+            <MudTextField Label="Title" @bind-Value="note.Title" For="@(() => note.Title)" Variant="Variant.Outlined" Class="mb-3" />
+            <MudSelect T="int" Label="Subject" @bind-Value="note.SubjectId" For="@(() => note.SubjectId)" Variant="Variant.Outlined" Class="mb-3" HelperText="Optional — file this note under a subject.">
+                <MudSelectItem T="int" Value="0">No subject</MudSelectItem>
+                @foreach (var s in subjects)
+                {
+                    <MudSelectItem T="int" Value="@s.Id">@s.Name</MudSelectItem>
+                }
+            </MudSelect>
+            <MudTextField Label="Tags" @bind-Value="note.Tags" Placeholder="e.g. exams, reviewer, chapter-3" Variant="Variant.Outlined" HelperText="Separate tags with spaces or commas." />
+        </div>
 
-        <MudSelect T="int" Label="Subject" @bind-Value="note.SubjectId" For="@(() => note.SubjectId)" Variant="Variant.Outlined" Class="mb-4">
-            <MudSelectItem T="int" Value="0">Select Subject</MudSelectItem>
-            @foreach (var s in subjects)
-            {
-                <MudSelectItem T="int" Value="@s.Id">@s.Name</MudSelectItem>
-            }
-        </MudSelect>
+        <div class="mb-6">
+            <MudText Typo="Typo.body2" Class="font-weight-bold mb-2">Content</MudText>
+            <MudTextField Label="Write your notes here..." @bind-Value="note.Content" For="@(() => note.Content)" Lines="13" Variant="Variant.Outlined" />
+        </div>
 
-        <MudTextField Label="Tags (e.g. #exam #reviewer)" @bind-Value="note.Tags" Variant="Variant.Outlined" Class="mb-4" />
-
-        <MudTextField Label="Write your notes here..." @bind-Value="note.Content" For="@(() => note.Content)" Lines="12" Variant="Variant.Outlined" Class="mb-6" />
-
-        <div class="d-flex gap-4 mb-6">
-            <MudCheckBox @bind-Value="note.IsPinned" Label="📌 Pin Note" Color="Color.Primary" />
-            <MudCheckBox @bind-Value="note.IsFavorite" Label="⭐ Favorite" Color="Color.Warning" />
+        <div class="mb-6 d-flex flex-wrap gap-4 pa-3" style="border-radius: 10px; background: var(--mud-palette-background-gray, #eef1f5);">
+            <MudCheckBox @bind-Value="note.IsPinned" Label="Pin note" Color="Color.Primary" />
+            <MudCheckBox @bind-Value="note.IsFavorite" Label="Mark as favorite" Color="Color.Warning" />
         </div>
 
         <div class="d-flex justify-end gap-2">
-            <MudButton Variant="Variant.Outlined" OnClick="Back">Cancel</MudButton>
-            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">Save Note</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Default" OnClick="Back">Cancel</MudButton>
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save">Save Note</MudButton>
         </div>
     </MudPaper>
 </EditForm>

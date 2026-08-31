@@ -5,49 +5,34 @@
 @inject IDialogService DialogService
 
 <!-- Header Row: title left, action button far right -->
-<MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Spacing="3" Class="mb-4">
-    <div>
-        <MudText Typo="Typo.h4" Class="font-weight-bold">Dashboard</MudText>
-        <MudText Typo="Typo.body1" Color="Color.Secondary">Welcome back! Here's an overview of your study notes.</MudText>
+<div class="d-flex flex-wrap align-center justify-space-between gap-4 mb-6">
+    <div class="sn-page-heading">
+        <MudText Typo="Typo.h4" Class="sn-page-title">Dashboard</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="sn-page-subtitle">Welcome back! Here's an overview of your study notes.</MudText>
     </div>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateNoteDialog" Size="Size.Large" Style="border-radius: 12px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
-        + New Note
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateNoteDialog">
+        New Note
     </MudButton>
-</MudStack>
+</div>
 
 <!-- Quick Stats Summary Cards -->
 <MudGrid Spacing="3" Class="mb-4">
     <MudItem xs="12" sm="6" md="4">
-        <MudPaper Class="pa-4 d-flex align-center justify-space-between h-100" Elevation="0" Outlined="true" Style="border-radius: 12px;">
-            <div>
-                <MudText Typo="Typo.subtitle2" Color="Color.Secondary">Total Notes</MudText>
-                <MudText Typo="Typo.h4" Class="font-weight-bold">@totalNotesCount</MudText>
-            </div>
-            <MudIcon Icon="@Icons.Material.Filled.Description" Color="Color.Primary" Size="Size.Large" />
-        </MudPaper>
+        <StatCard Value="@totalNotesCount" Title="Total Notes" Icon="@Icons.Material.Filled.Description" Tone="primary" />
     </MudItem>
     <MudItem xs="12" sm="6" md="4">
-        <MudPaper Class="pa-4 d-flex align-center justify-space-between h-100" Elevation="0" Outlined="true" Style="border-radius: 12px;">
-            <div>
-                <MudText Typo="Typo.subtitle2" Color="Color.Secondary">Pinned Notes</MudText>
-                <MudText Typo="Typo.h4" Class="font-weight-bold">@pinnedNotesCount</MudText>
-            </div>
-            <MudIcon Icon="@Icons.Material.Filled.PushPin" Color="Color.Warning" Size="Size.Large" />
-        </MudPaper>
+        <StatCard Value="@pinnedNotesCount" Title="Pinned Notes" Icon="@Icons.Material.Filled.PushPin" Tone="warning" />
     </MudItem>
     <MudItem xs="12" sm="6" md="4">
-        <MudPaper Class="pa-4 d-flex align-center justify-space-between h-100" Elevation="0" Outlined="true" Style="border-radius: 12px;">
-            <div>
-                <MudText Typo="Typo.subtitle2" Color="Color.Secondary">Total Subjects</MudText>
-                <MudText Typo="Typo.h4" Class="font-weight-bold">@totalSubjectsCount</MudText>
-            </div>
-            <MudIcon Icon="@Icons.Material.Filled.Bookmark" Color="Color.Success" Size="Size.Large" />
-        </MudPaper>
+        <StatCard Value="@totalSubjectsCount" Title="Subjects" Icon="@Icons.Material.Filled.Bookmark" Tone="success" />
     </MudItem>
 </MudGrid>
 
 <!-- Recent Notes Section -->
-<MudText Typo="Typo.h6" Class="font-weight-bold mb-4">Recent Notes</MudText>
+<div class="sn-section-head">
+    <MudText Typo="Typo.h6" Class="sn-section-title">Recent Notes</MudText>
+    <MudButton Variant="Variant.Text" Color="Color.Primary" EndIcon="@Icons.Material.Filled.ArrowForward" OnClick="@(() => NavigationManager.NavigateTo("/notes"))">View all</MudButton>
+</div>
 
 @if (recentNotes == null || !recentNotes.Any())
 {

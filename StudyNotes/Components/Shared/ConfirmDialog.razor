@@ -2,11 +2,16 @@
 
 <MudDialog>
     <DialogContent>
-        <MudText Typo="Typo.body1">@ContentText</MudText>
+        <div class="d-flex align-start gap-3 sn-fade">
+            <div class="sn-empty-icon" style="flex: 0 0 auto;">
+                <MudIcon Icon="@ContentIcon" Size="Size.Large" />
+            </div>
+            <MudText Typo="Typo.body1" Class="pt-2">@ContentText</MudText>
+        </div>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">Cancel</MudButton>
-        <MudButton Color="@Color" Variant="Variant.Filled" OnClick="Submit">@ButtonText</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Default" OnClick="Cancel" StartIcon="@Icons.Material.Filled.Close">Cancel</MudButton>
+        <MudButton Color="@Color" Variant="Variant.Filled" OnClick="Submit" StartIcon="@Icons.Material.Filled.Check">@ButtonText</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -16,6 +21,8 @@
     [Parameter] public string ContentText { get; set; } = string.Empty;
     [Parameter] public string ButtonText { get; set; } = "Confirm";
     [Parameter] public Color Color { get; set; } = Color.Primary;
+
+    private string ContentIcon => Color == Color.Error ? Icons.Material.Filled.WarningAmber : Icons.Material.Filled.HelpOutline;
 
     private void Submit() => MudDialog.Close(DialogResult.Ok(true));
     private void Cancel() => MudDialog.Cancel();

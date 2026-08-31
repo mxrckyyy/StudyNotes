@@ -1,46 +1,168 @@
 ﻿@inherits LayoutComponentBase
 
-<MudThemeProvider />
+<MudThemeProvider Theme="_theme" @bind-IsDarkMode="_darkMode" ObserveSystemDarkModeChange="false" />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
 <MudLayout>
     <!-- Top App Bar -->
-    <MudAppBar Elevation="1">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
-        <MudText Typo="Typo.h6" Class="ml-3">StudyNotes</MudText>
+    <MudAppBar Elevation="0" Class="sn-appbar">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" title="Toggle navigation" />
+        <div class="d-flex align-center my-auto ml-2">
+            <div class="sn-brand-mark">S</div>
+            <span class="sn-brand-name">StudyNotes</span>
+        </div>
         <MudSpacer />
+        <MudIconButton Icon="@(_darkMode ? Icons.Material.Filled.WbSunny : Icons.Material.Filled.DarkMode)"
+                       Color="Color.Default"
+                       OnClick="@ToggleTheme"
+                       title="@(_darkMode ? "Switch to light mode" : "Switch to dark mode")" />
     </MudAppBar>
 
     <!-- Slide-Out Navigation Drawer -->
-    <MudDrawer @bind-Open="_drawerOpen" Anchor="Anchor.Left" Elevation="2" Variant="DrawerVariant.Temporary" Style="transition: transform 0.3s ease-in-out;">
+    <MudDrawer @bind-Open="_drawerOpen" Anchor="Anchor.Left" Elevation="0" Variant="DrawerVariant.Temporary" Class="sn-drawer">
         <div class="d-flex flex-column h-100">
-            <!-- Header Section -->
-            <div class="d-flex align-center justify-space-between px-4 py-3" style="min-height: 56px;">
-                <MudText Typo="Typo.h6" Color="Color.Primary" Class="font-weight-bold">
-                    StudyNotes
-                </MudText>
-                <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Default" OnClick="@CloseDrawer" Size="Size.Small" />
+            <!-- Keyline header -->
+            <div class="sn-drawer-header d-flex align-center justify-space-between">
+                <div class="d-flex align-center">
+                    <div class="sn-brand-mark">S</div>
+                    <div class="d-flex flex-column my-auto">
+                        <span class="sn-brand-name">StudyNotes</span>
+                        <span class="sn-brand-tagline">Your study companion</span>
+                    </div>
+                </div>
+                <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Default" Size="Size.Small" OnClick="@CloseDrawer" title="Close navigation" />
             </div>
 
-            <MudDivider />
-
-            <!-- Navigation Links Component -->
-            <div class="flex-grow-1 d-flex flex-column" style="overflow-y: auto;">
+            <!-- Navigation -->
+            <div class="sn-drawer-body d-flex flex-column">
                 <NavMenu OnLinkClick="@CloseDrawer" />
+            </div>
+
+            <div class="sn-drawer-footer">
+                <MudText Typo="Typo.caption">StudyNotes v1.0 &middot; Minimalist organizer</MudText>
             </div>
         </div>
     </MudDrawer>
 
     <!-- Main Content Body -->
-    <MudMainContent Style="padding-top: 80px; padding-left: 24px; padding-right: 24px;">
-        @Body
+    <MudMainContent Class="sn-main-content">
+        <div class="sn-content-shell">
+            @Body
+        </div>
     </MudMainContent>
 </MudLayout>
 
 @code {
     private bool _drawerOpen = false;
+    private bool _darkMode = false;
+
+    private readonly MudTheme _theme = new MudTheme()
+    {
+        PaletteLight = new PaletteLight()
+        {
+            Primary = "#4F46E5",
+            PrimaryContrastText = "#FFFFFF",
+            Secondary = "#6B7280",
+            Tertiary = "#8B5CF6",
+            Info = "#3B82F6",
+            Success = "#16A34A",
+            Warning = "#D97706",
+            Error = "#DC2626",
+            Dark = "#111827",
+            Background = "#F4F5F9",
+            BackgroundGray = "#ECEFF5",
+            Surface = "#FFFFFF",
+            DrawerBackground = "#FFFFFF",
+            DrawerText = "#374151",
+            DrawerIcon = "#6B7280",
+            AppbarBackground = "#FFFFFF",
+            AppbarText = "#111827",
+            TextPrimary = "#111827",
+            TextSecondary = "#6B7280",
+            TextDisabled = "#9CA3AF",
+            ActionDefault = "#4B5563",
+            ActionDisabled = "#C4C9D4",
+            ActionDisabledBackground = "#E9EBF1",
+            LinesDefault = "#E6E8F0",
+            LinesInputs = "#D3D7E1",
+            TableLines = "#ECEEF4",
+            Divider = "#E6E8F0",
+            DividerLight = "#F0F2F7",
+            GrayDefault = "#1F2937",
+            GrayLight = "#4B5563",
+            GrayLighter = "#9CA3AF",
+            GrayDark = "#374151",
+            GrayDarker = "#111827",
+            OverlayDark = "rgba(17, 24, 39, 0.4)",
+            OverlayLight = "rgba(244, 245, 249, 0.8)",
+        },
+        PaletteDark = new PaletteDark()
+        {
+            Primary = "#818CF8",
+            PrimaryContrastText = "#0B0E16",
+            Secondary = "#9CA3AF",
+            Tertiary = "#A78BFA",
+            Info = "#60A5FA",
+            Success = "#34D399",
+            Warning = "#FBBF24",
+            Error = "#F87171",
+            Dark = "#E5E9F2",
+            Background = "#0B0E16",
+            BackgroundGray = "#11151F",
+            Surface = "#141926",
+            DrawerBackground = "#121724",
+            DrawerText = "#C3CADB",
+            DrawerIcon = "#8B94A9",
+            AppbarBackground = "#121724",
+            AppbarText = "#E5E9F2",
+            TextPrimary = "#E5E9F2",
+            TextSecondary = "#9AA3B5",
+            TextDisabled = "#667085",
+            ActionDefault = "#C3CADB",
+            ActionDisabled = "#3A4256",
+            ActionDisabledBackground = "#1F2534",
+            LinesDefault = "#222A3C",
+            LinesInputs = "#2C354B",
+            TableLines = "#1B2231",
+            Divider = "#222A3C",
+            DividerLight = "#1B2231",
+            GrayDefault = "#D1D5DB",
+            GrayLight = "#9CA3AF",
+            GrayLighter = "#6B7280",
+            GrayDark = "#F3F4F6",
+            GrayDarker = "#FFFFFF",
+            OverlayDark = "rgba(11, 14, 22, 0.6)",
+            OverlayLight = "rgba(11, 14, 22, 0.4)",
+        },
+        Typography = new Typography()
+        {
+            Default = new DefaultTypography()
+            {
+                FontFamily = new[] { "Inter", "Roboto", "Helvetica Neue", "Arial", "sans-serif" },
+                FontWeight = "400",
+                FontSize = "0.875rem",
+                LineHeight = "1.6",
+            },
+            H3 = new H3Typography() { FontWeight = "650", FontSize = "1.75rem", LineHeight = "1.25" },
+            H4 = new H4Typography() { FontWeight = "650", FontSize = "1.5rem", LineHeight = "1.3" },
+            H5 = new H5Typography() { FontWeight = "600", FontSize = "1.25rem", LineHeight = "1.35" },
+            H6 = new H6Typography() { FontWeight = "600", FontSize = "1.1rem", LineHeight = "1.4" },
+            Subtitle1 = new Subtitle1Typography() { FontWeight = "500", FontSize = "1rem", LineHeight = "1.45" },
+            Subtitle2 = new Subtitle2Typography() { FontWeight = "500", FontSize = "0.875rem", LineHeight = "1.45" },
+            Body1 = new Body1Typography() { FontWeight = "400", FontSize = "1rem", LineHeight = "1.6" },
+            Body2 = new Body2Typography() { FontWeight = "400", FontSize = "0.875rem", LineHeight = "1.6" },
+            Caption = new CaptionTypography() { FontWeight = "400", FontSize = "0.75rem", LineHeight = "1.5" },
+            Button = new ButtonTypography() { FontWeight = "550", FontSize = "0.875rem", TextTransform = "none" },
+        },
+        LayoutProperties = new LayoutProperties()
+        {
+            DefaultBorderRadius = "12px",
+            DrawerWidthLeft = "286px",
+            AppbarHeight = "64px",
+        },
+    };
 
     private void ToggleDrawer()
     {
@@ -50,5 +172,10 @@
     private void CloseDrawer()
     {
         _drawerOpen = false;
+    }
+
+    private void ToggleTheme()
+    {
+        _darkMode = !_darkMode;
     }
 }
