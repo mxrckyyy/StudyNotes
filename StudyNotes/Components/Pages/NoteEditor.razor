@@ -1,0 +1,69 @@
+﻿@page "/notes/new"
+@page "/notes/{Id:int}/edit"
+@inject NoteService NoteService
+@inject SubjectService SubjectService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+
+<MudButton StartIcon="@Icons.Material.Filled.ArrowBack" OnClick="Back" Class="mb-4">Back</MudButton>
+
+<MudText Typo="Typo.h4" Class="font-weight-bold mb-6">@(Id == 0 ? "New Note" : "Edit Note")</MudText>
+
+<EditForm Model="note" OnValidSubmit="SaveNote">
+    <DataAnnotationsValidator />
+
+    <MudPaper Class="pa-6" Elevation="0" Outlined="true" Style="border-radius: 12px;">
+        <MudTextField Label="Title" @bind-Value="note.Title" For="@(() => note.Title)" Variant="Variant.Outlined" Class="mb-4" />
+
+        <MudSelect T="int" Label="Subject" @bind-Value="note.SubjectId" For="@(() => note.SubjectId)" Variant="Variant.Outlined" Class="mb-4">
+            <MudSelectItem T="int" Value="0">Select Subject</MudSelectItem>
+            @foreach (var s in subjects)
+            {
+                <MudSelectItem T="int" Value="@s.Id">@s.Name</MudSelectItem>
+            }
+        </MudSelect>
+
+        <MudTextField Label="Tags (e.g. #exam #reviewer)" @bind-Value="note.Tags" Variant="Variant.Outlined" Class="mb-4" />
+
+        <MudTextField Label="Write your notes here..." @bind-Value="note.Content" For="@(() => note.Content)" Lines="12" Variant="Variant.Outlined" Class="mb-6" />
+
+        <div class="d-flex gap-4 mb-6">
+            <MudCheckBox @bind-Value="note.IsPinned" Label="📌 Pin Note" Color="Color.Primary" />
+            <MudCheckBox @bind-Value="note.IsFavorite" Label="⭐ Favorite" Color="Color.Warning" />
+        </div>
+
+        <div class="d-flex justify-end gap-2">
+            <MudButton Variant="Variant.Outlined" OnClick="Back">Cancel</MudButton>
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">Save Note</MudButton>
+        </div>
+    </MudPaper>
+</EditForm>
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private Note note = new();
+    private List<Subject> subjects = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        subjects = await SubjectService.GetAllSubjectsAsync();
+
+        if (Id > 0)
+        {
+            var existingNote = await NoteService.GetNoteByIdAsync(Id);
+            if (existingNote != null)
+            {
+                note = existingNote;
+            }
+        }
+    }
+
+    private async Task SaveNote()
+    {
+        await NoteService.SaveNoteAsync(note);
+        Snackbar.Add("✓ Note saved successfully.", Severity.Success);
+        Navigation.NavigateTo("/notes");
+    }
+
+    private void Back() => Navigation.NavigateTo("/notes");
+}

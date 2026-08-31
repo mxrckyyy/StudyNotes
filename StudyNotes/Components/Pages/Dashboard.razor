@@ -1,0 +1,96 @@
+﻿@page "/"
+@inject NoteService NoteService
+@inject SubjectService SubjectService
+@inject NavigationManager NavigationManager
+@inject IDialogService DialogService
+
+<!-- Header Row: title left, action button far right -->
+<MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Spacing="3" Class="mb-4">
+    <div>
+        <MudText Typo="Typo.h4" Class="font-weight-bold">Dashboard</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary">Welcome back! Here's an overview of your study notes.</MudText>
+    </div>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateNoteDialog" Size="Size.Large" Style="border-radius: 12px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+        + New Note
+    </MudButton>
+</MudStack>
+
+<!-- Quick Stats Summary Cards -->
+<MudGrid Spacing="3" Class="mb-4">
+    <MudItem xs="12" sm="6" md="4">
+        <MudPaper Class="pa-4 d-flex align-center justify-space-between h-100" Elevation="0" Outlined="true" Style="border-radius: 12px;">
+            <div>
+                <MudText Typo="Typo.subtitle2" Color="Color.Secondary">Total Notes</MudText>
+                <MudText Typo="Typo.h4" Class="font-weight-bold">@totalNotesCount</MudText>
+            </div>
+            <MudIcon Icon="@Icons.Material.Filled.Description" Color="Color.Primary" Size="Size.Large" />
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="4">
+        <MudPaper Class="pa-4 d-flex align-center justify-space-between h-100" Elevation="0" Outlined="true" Style="border-radius: 12px;">
+            <div>
+                <MudText Typo="Typo.subtitle2" Color="Color.Secondary">Pinned Notes</MudText>
+                <MudText Typo="Typo.h4" Class="font-weight-bold">@pinnedNotesCount</MudText>
+            </div>
+            <MudIcon Icon="@Icons.Material.Filled.PushPin" Color="Color.Warning" Size="Size.Large" />
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="4">
+        <MudPaper Class="pa-4 d-flex align-center justify-space-between h-100" Elevation="0" Outlined="true" Style="border-radius: 12px;">
+            <div>
+                <MudText Typo="Typo.subtitle2" Color="Color.Secondary">Total Subjects</MudText>
+                <MudText Typo="Typo.h4" Class="font-weight-bold">@totalSubjectsCount</MudText>
+            </div>
+            <MudIcon Icon="@Icons.Material.Filled.Bookmark" Color="Color.Success" Size="Size.Large" />
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+<!-- Recent Notes Section -->
+<MudText Typo="Typo.h6" Class="font-weight-bold mb-4">Recent Notes</MudText>
+
+@if (recentNotes == null || !recentNotes.Any())
+{
+    <EmptyState Icon="@Icons.Material.Filled.Description" Title="No Notes Yet" Message="Click '+ New Note' to create your first study note." />
+}
+else
+{
+    <MudGrid Spacing="3">
+        @foreach (var note in recentNotes)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <NoteCard Note="note" />
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+@code {
+    private List<Note> recentNotes = new();
+    private int totalNotesCount;
+    private int pinnedNotesCount;
+    private int totalSubjectsCount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDashboardData();
+    }
+
+    private async Task LoadDashboardData()
+    {
+        var allNotes = await NoteService.GetAllNotesAsync();
+        var allSubjects = await SubjectService.GetAllSubjectsAsync();
+
+        totalNotesCount = allNotes.Count;
+        pinnedNotesCount = allNotes.Count(n => n.IsPinned);
+        totalSubjectsCount = allSubjects.Count;
+        recentNotes = allNotes.OrderByDescending(n => n.CreatedAt).Take(6).ToList();
+    }
+
+    private async Task OpenCreateNoteDialog()
+    {
+        var dialog = await DialogService.ShowAsync<CreateNoteDialog>("New Note", new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
+        if (dialog != null)
+            await dialog.Result;
+    }
+}

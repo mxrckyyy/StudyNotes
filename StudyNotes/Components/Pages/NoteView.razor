@@ -1,0 +1,98 @@
+﻿@page "/notes/{Id:int}"
+@inject NoteService NoteService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<MudButton StartIcon="@Icons.Material.Filled.ArrowBack" OnClick="Back" Class="mb-4">Back to Notes</MudButton>
+
+@if (note == null)
+{
+    <MudProgressCircular Indeterminate="true" Class="d-block mx-auto mt-8" />
+}
+else
+{
+    <MudPaper Class="pa-8" Elevation="0" Outlined="true" Style="border-radius: 12px;">
+        <div class="d-flex justify-space-between align-center mb-2">
+            <MudText Typo="Typo.h3" Class="font-weight-bold">@note.Title</MudText>
+            <div>
+                <MudIconButton Icon="@(note.IsPinned ? Icons.Material.Filled.PushPin : Icons.Material.Outlined.PushPin)"
+                               Color="@(note.IsPinned ? Color.Primary : Color.Default)" OnClick="TogglePin" />
+                <MudIconButton Icon="@(note.IsFavorite ? Icons.Material.Filled.Star : Icons.Material.Outlined.StarBorder)"
+                               Color="@(note.IsFavorite ? Color.Warning : Color.Default)" OnClick="ToggleFavorite" />
+                <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="EditNote" Class="ml-2">Edit</MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="DeleteNote" Class="ml-2">Delete</MudButton>
+            </div>
+        </div>
+
+        <div class="d-flex align-center gap-2 mb-6">
+            <MudChip T="string" Color="Color.Primary" Variant="Variant.Text">📚 @(note.Subject?.Name ?? "Unassigned")</MudChip>
+            <MudText Typo="Typo.caption" Color="Color.Secondary">Updated @note.UpdatedAt.ToString("MMM dd, yyyy")</MudText>
+        </div>
+
+        <MudDivider Class="mb-6" />
+
+        <MudText Typo="Typo.body1" Style="white-space: pre-line; line-height: 1.8;" Class="mb-8">@note.Content</MudText>
+
+        @if (!string.IsNullOrEmpty(note.Tags))
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@note.Tags</MudText>
+        }
+    </MudPaper>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private Note? note;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadNote();
+    }
+
+    private async Task LoadNote()
+    {
+        note = await NoteService.GetNoteByIdAsync(Id);
+    }
+
+    private async Task TogglePin()
+    {
+        if (note == null) return;
+        await NoteService.TogglePinAsync(note.Id);
+        Snackbar.Add(note.IsPinned ? "✓ Note unpinned." : "✓ Note pinned.", Severity.Info);
+        await LoadNote();
+    }
+
+    private async Task ToggleFavorite()
+    {
+        if (note == null) return;
+        await NoteService.ToggleFavoriteAsync(note.Id);
+        Snackbar.Add(note.IsFavorite ? "✓ Removed from favorites." : "✓ Added to favorites.", Severity.Info);
+        await LoadNote();
+    }
+
+    private async Task DeleteNote()
+    {
+        if (note == null) return;
+
+        var parameters = new DialogParameters
+        {
+            ["ContentText"] = $"Are you sure you want to delete \"{note.Title}\"? This action cannot be undone.",
+            ["ButtonText"] = "Delete",
+            ["Color"] = Color.Error
+        };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>("Delete Note?", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await NoteService.DeleteNoteAsync(note.Id);
+            Snackbar.Add("✓ Note deleted.", Severity.Success);
+            Navigation.NavigateTo("/notes");
+        }
+    }
+
+    private void EditNote() => Navigation.NavigateTo($"/notes/{Id}/edit");
+    private void Back() => Navigation.NavigateTo("/notes");
+}

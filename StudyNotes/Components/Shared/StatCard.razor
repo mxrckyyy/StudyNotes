@@ -1,0 +1,9 @@
+﻿<MudPaper Class="pa-4 d-flex flex-column align-center justify-center" Elevation="0" Outlined="true" Style="border-radius: 12px;">
+    <MudText Typo="Typo.h3" Color="Color.Primary" Style="font-weight: 700;">@Value</MudText>
+    <MudText Typo="Typo.body2" Color="Color.Secondary">@Title</MudText>
+</MudPaper>
+
+@code {
+    [Parameter] public int Value { get; set; }
+    [Parameter] public string Title { get; set; } = string.Empty;
+}

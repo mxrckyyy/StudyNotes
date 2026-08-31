@@ -1,0 +1,124 @@
+﻿@page "/notes"
+@using MudBlazor
+@using StudyNotes.Data.Models
+@using StudyNotes.Services
+@inject NoteService NoteService
+@inject SubjectService SubjectService
+@inject IDialogService DialogService
+
+<MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Spacing="3" Class="mb-4">
+    <div>
+        <MudText Typo="Typo.h4" Class="font-weight-bold">All Notes</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary">Manage and organize your study notes.</MudText>
+    </div>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateNoteDialog">
+        + Create New Note
+    </MudButton>
+</MudStack>
+
+<!-- Search & Filter Controls -->
+<MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3" Class="align-center my-4">
+    <MudItem xs="12" md="8">
+        <MudTextField T="string" Label="Search" @bind-Value="SearchString" Placeholder="Search notes..." Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Immediate="true" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true" OnClearButtonClick="ResetSearch" FullWidth="true" />
+    </MudItem>
+    <MudItem xs="12" md="4">
+        <MudSelect T="int?" Label="Filter by Subject" @bind-Value="SelectedSubjectId" Variant="Variant.Outlined" Margin="Margin.Dense" Clearable="true" FullWidth="true">
+            <MudSelectItem T="int?" Value="@(null)">All Subjects</MudSelectItem>
+            @foreach (var subject in subjects)
+            {
+                <MudSelectItem T="int?" Value="@((int?)subject.Id)">@subject.Name</MudSelectItem>
+            }
+        </MudSelect>
+    </MudItem>
+</MudStack>
+
+<!-- Notes Grid View -->
+@if (filteredNotes == null || !filteredNotes.Any())
+{
+    <EmptyState Icon="@Icons.Material.Filled.Description" Title="No Notes Found" Message="No notes match your search criteria. Try creating one!" />
+}
+else
+{
+    <MudGrid Spacing="3">
+        @foreach (var note in filteredNotes)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <NoteCard Note="note" />
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+@code {
+    private List<Note> allNotes = new();
+    private List<Note> filteredNotes = new();
+    private List<Subject> subjects = new();
+
+    private string _searchString = string.Empty;
+    private string SearchString
+    {
+        get => _searchString;
+        set
+        {
+            _searchString = value;
+            FilterNotes();
+        }
+    }
+
+    private int? _selectedSubjectId;
+    private int? SelectedSubjectId
+    {
+        get => _selectedSubjectId;
+        set
+        {
+            _selectedSubjectId = value;
+            FilterNotes();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        allNotes = await NoteService.GetAllNotesAsync();
+        subjects = await SubjectService.GetAllSubjectsAsync();
+        FilterNotes();
+    }
+
+    private void FilterNotes()
+    {
+        filteredNotes = allNotes;
+
+        if (SelectedSubjectId.HasValue)
+        {
+            filteredNotes = filteredNotes.Where(n => n.SubjectId == SelectedSubjectId.Value).ToList();
+        }
+
+        if (!string.IsNullOrWhiteSpace(SearchString))
+        {
+            filteredNotes = filteredNotes
+                .Where(n => n.Title.Contains(SearchString, StringComparison.OrdinalIgnoreCase) ||
+                            (n.Content != null && n.Content.Contains(SearchString, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+        }
+    }
+
+    private void ResetSearch()
+    {
+        SearchString = string.Empty;
+    }
+
+    private async Task OpenCreateNoteDialog()
+    {
+        var dialog = await DialogService.ShowAsync<CreateNoteDialog>("New Note", new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
+        if (dialog != null)
+        {
+            var result = await dialog.Result;
+            if (result != null && !result.Canceled)
+                await LoadData();
+        }
+    }
+}

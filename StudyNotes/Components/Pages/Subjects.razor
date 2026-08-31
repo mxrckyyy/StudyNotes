@@ -1,0 +1,85 @@
+﻿@page "/subjects"
+@inject SubjectService SubjectService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<MudText Typo="Typo.h4" Class="font-weight-bold mb-6">Subjects</MudText>
+
+<MudPaper Class="pa-6 mb-8" Elevation="0" Outlined="true" Style="border-radius: 12px;">
+    <EditForm Model="newSubject" OnValidSubmit="AddSubject">
+        <DataAnnotationsValidator />
+        <MudGrid>
+            <MudItem xs="12" sm="8">
+                <MudTextField T="string" Label="Add New Subject" @bind-Value="newSubject.Name" Variant="Variant.Outlined" Required="true" RequiredError="Subject name is required." />
+            </MudItem>
+            <MudItem xs="12" sm="4" Class="d-flex align-center">
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Style="height: 56px;">+ Add Subject</MudButton>
+            </MudItem>
+        </MudGrid>
+    </EditForm>
+</MudPaper>
+
+@if (!subjects.Any())
+{
+    <EmptyState Icon="@Icons.Material.Filled.Book" Title="No Subjects Yet" Message="Add subjects to start categorizing your study notes." />
+}
+else
+{
+    <MudGrid GutterSize="GutterSize.Small">
+        @foreach (var subject in subjects)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudPaper Class="pa-4 d-flex justify-space-between align-center" Elevation="0" Outlined="true" Style="border-radius: 12px;">
+                    <div>
+                        <MudText Typo="Typo.h6" Class="font-weight-bold">📘 @subject.Name</MudText>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">@(subject.Notes?.Count ?? 0) Notes</MudText>
+                    </div>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => DeleteSubject(subject))" />
+                </MudPaper>
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+@code {
+    private List<Subject> subjects = new();
+    private Subject newSubject = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSubjects();
+    }
+
+    private async Task LoadSubjects()
+    {
+        subjects = await SubjectService.GetAllSubjectsAsync();
+    }
+
+    private async Task AddSubject()
+    {
+        await SubjectService.SaveSubjectAsync(newSubject);
+        Snackbar.Add("✓ Subject added!", Severity.Success);
+        newSubject = new Subject();
+        await LoadSubjects();
+    }
+
+    private async Task DeleteSubject(Subject subject)
+    {
+        var parameters = new DialogParameters
+        {
+            ["ContentText"] = $"Are you sure you want to delete the subject \"{subject.Name}\"?",
+            ["ButtonText"] = "Delete",
+            ["Color"] = Color.Error
+        };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>("Delete Subject?", parameters);
+        var result = await dialog.Result;
+
+        if (result != null && !result.Canceled)
+        {
+            await SubjectService.DeleteSubjectAsync(subject.Id);
+            Snackbar.Add("✓ Subject deleted.", Severity.Info);
+            await LoadSubjects();
+        }
+    }
+}

@@ -1,0 +1,44 @@
+﻿@inject NavigationManager NavigationManager
+
+<div class="d-flex flex-column justify-space-between h-100 pa-2">
+    <!-- Main Links Section -->
+    <MudNavMenu Class="pa-0">
+        <MudNavLink OnClick='() => NavigateTo("/")' Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard">Dashboard</MudNavLink>
+        <MudNavLink OnClick='() => NavigateTo("/notes")' Icon="@Icons.Material.Filled.Description">All Notes</MudNavLink>
+        <MudNavLink OnClick='() => NavigateTo("/pinned")' Icon="@Icons.Material.Filled.PushPin">Pinned</MudNavLink>
+        <MudNavLink OnClick='() => NavigateTo("/favorites")' Icon="@Icons.Material.Filled.Star">Favorites</MudNavLink>
+        <MudNavLink OnClick='() => NavigateTo("/subjects")' Icon="@Icons.Material.Filled.Bookmark">Subjects</MudNavLink>
+    </MudNavMenu>
+
+    <!-- Bottom Links Section -->
+    <div class="mt-auto">
+        <MudDivider Class="my-2" />
+
+        <MudNavMenu Class="pa-0">
+            <MudNavLink OnClick='() => NavigateTo("/settings")' Icon="@Icons.Material.Filled.Settings">Settings</MudNavLink>
+        </MudNavMenu>
+
+        <!-- Interactive Profile Widget -->
+        <MudPaper OnClick='() => NavigateTo("/")' Class="pa-3 mx-2 my-2 d-flex align-center cursor-pointer" Elevation="0" Style="background-color: var(--mud-palette-background-grey); border-radius: 8px;">
+            <MudAvatar Color="Color.Primary" Size="Size.Small" Class="mr-3">S</MudAvatar>
+            <div>
+                <MudText Typo="Typo.subtitle2" Class="font-weight-bold">Student</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">My Account</MudText>
+            </div>
+        </MudPaper>
+    </div>
+</div>
+
+@code {
+    [Parameter] public EventCallback OnLinkClick { get; set; }
+
+    private async Task NavigateTo(string uri)
+    {
+        NavigationManager.NavigateTo(uri);
+
+        if (OnLinkClick.HasDelegate)
+        {
+            await OnLinkClick.InvokeAsync();
+        }
+    }
+}

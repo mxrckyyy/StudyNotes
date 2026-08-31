@@ -1,0 +1,54 @@
+@inject NoteService NoteService
+@inject SubjectService SubjectService
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <EditForm Model="note" OnValidSubmit="SaveNote">
+            <DataAnnotationsValidator />
+            <MudGrid Spacing="3">
+                <MudItem xs="12">
+                    <MudTextField Label="Title" @bind-Value="note.Title" For="@(() => note.Title)" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudSelect T="int" Label="Subject" @bind-Value="note.SubjectId" For="@(() => note.SubjectId)" Variant="Variant.Outlined">
+                        <MudSelectItem T="int" Value="0">Select Subject</MudSelectItem>
+                        @foreach (var s in subjects)
+                        {
+                            <MudSelectItem T="int" Value="@s.Id">@s.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField Label="Content" @bind-Value="note.Content" For="@(() => note.Content)" Variant="Variant.Outlined" Lines="6" />
+                </MudItem>
+            </MudGrid>
+        </EditForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="Cancel">Cancel</MudButton>
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveNote">SAVE NOTE</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
+
+    private Note note = new();
+    private List<Subject> subjects = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        subjects = await SubjectService.GetAllSubjectsAsync();
+    }
+
+    private async Task SaveNote()
+    {
+        note.CreatedAt = DateTime.Now;
+        await NoteService.SaveNoteAsync(note);
+        Snackbar.Add("✓ Note created successfully!", Severity.Success);
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

@@ -1,0 +1,82 @@
+﻿@inject NoteService NoteService
+@inject NavigationManager Navigation
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<MudCard Elevation="0" Outlined="true" Class="rounded-lg cursor-pointer h-100 d-flex flex-column" @onclick="ViewNote">
+    <MudCardHeader>
+        <CardHeaderContent>
+            <MudText Typo="Typo.h6" Style="font-size: 1.1rem; font-weight: 600;">@Note.Title</MudText>
+            <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Text" Class="mt-1 ml-0">
+                📘 @(Note.Subject?.Name ?? "Unassigned")
+            </MudChip>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudIconButton Icon="@(Note.IsPinned ? Icons.Material.Filled.PushPin : Icons.Material.Outlined.PushPin)"
+                           Color="@(Note.IsPinned ? Color.Primary : Color.Default)"
+                           OnClick="TogglePin" OnClick:stopPropagation="true" Size="Size.Small" />
+            <MudIconButton Icon="@(Note.IsFavorite ? Icons.Material.Filled.Star : Icons.Material.Outlined.StarBorder)"
+                           Color="@(Note.IsFavorite ? Color.Warning : Color.Default)"
+                           OnClick="ToggleFavorite" OnClick:stopPropagation="true" Size="Size.Small" />
+        </CardHeaderActions>
+    </MudCardHeader>
+
+    <MudCardContent Class="py-0 flex-grow-1">
+        <MudText Typo="Typo.body2" Color="Color.Secondary" Style="white-space: pre-line;">
+            @(Note.Content.Length > 120 ? Note.Content.Substring(0, 120) + "..." : Note.Content)
+        </MudText>
+    </MudCardContent>
+
+    <MudCardActions Class="d-flex justify-space-between align-center px-4 py-3">
+        <MudText Typo="Typo.caption" Color="Color.Secondary">
+            @Note.UpdatedAt.ToString("MMM dd, yyyy")
+        </MudText>
+
+        <div>
+            <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" OnClick="EditNote" OnClick:stopPropagation="true" />
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="DeleteNote" OnClick:stopPropagation="true" />
+        </div>
+    </MudCardActions>
+</MudCard>
+
+@code {
+    [Parameter] public Note Note { get; set; } = default!;
+    [Parameter] public EventCallback OnChanged { get; set; }
+
+    private async Task TogglePin()
+    {
+        await NoteService.TogglePinAsync(Note.Id);
+        Snackbar.Add(Note.IsPinned ? "✓ Note unpinned." : "✓ Note pinned.", Severity.Info);
+        await OnChanged.InvokeAsync();
+    }
+
+    private async Task ToggleFavorite()
+    {
+        await NoteService.ToggleFavoriteAsync(Note.Id);
+        Snackbar.Add(Note.IsFavorite ? "✓ Removed from favorites." : "✓ Added to favorites.", Severity.Info);
+        await OnChanged.InvokeAsync();
+    }
+
+    private async Task DeleteNote()
+    {
+        var parameters = new DialogParameters
+        {
+            ["ContentText"] = $"Are you sure you want to delete \"{Note.Title}\"? This action cannot be undone.",
+            ["ButtonText"] = "Delete",
+            ["Color"] = Color.Error
+        };
+
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>("Delete Note?", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await NoteService.DeleteNoteAsync(Note.Id);
+            Snackbar.Add("✓ Note deleted.", Severity.Success);
+            await OnChanged.InvokeAsync();
+        }
+    }
+
+    private void ViewNote() => Navigation.NavigateTo($"/notes/{Note.Id}");
+    private void EditNote() => Navigation.NavigateTo($"/notes/{Note.Id}/edit");
+}
