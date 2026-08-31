@@ -54,7 +54,7 @@
 
     private async Task SaveNote()
     {
-        note.CreatedAt = DateTime.Now;
+        note.CreatedAt = DateTime.UtcNow;
         await NoteService.SaveNoteAsync(note);
         Snackbar.Add("✓ Note created successfully!", Severity.Success);
         MudDialog.Close(DialogResult.Ok(true));

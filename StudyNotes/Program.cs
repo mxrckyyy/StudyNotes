@@ -35,9 +35,13 @@ builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
 builder.Services.AddScoped<NoteService>();
 builder.Services.AddScoped<SubjectService>();
 
-// 5. Listen on the port Render injects (defaulting to 8080)
-var port = builder.Configuration["PORT"] ?? "8080";
-builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+// 5. In production (Render), listen on the injected PORT (default 8080).
+//    Local development keeps the URLs from launchSettings/appsettings.
+if (!builder.Environment.IsDevelopment())
+{
+    var port = builder.Configuration["PORT"] ?? "8080";
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
 
 var app = builder.Build();
 

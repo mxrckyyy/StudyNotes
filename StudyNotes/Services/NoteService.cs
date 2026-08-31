@@ -55,11 +55,11 @@ public class NoteService
     public async Task SaveNoteAsync(Note note)
     {
         using var context = _factory.CreateDbContext();
-        note.UpdatedAt = DateTime.Now;
+        note.UpdatedAt = DateTime.UtcNow;
 
         if (note.Id == 0)
         {
-            note.CreatedAt = DateTime.Now;
+            note.CreatedAt = DateTime.UtcNow;
             context.Notes.Add(note);
         }
         else
