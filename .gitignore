@@ -1,7 +1,5 @@
-.vs/
+﻿.vs/
 obj/
 bin/
-*.db
-*.db-shm
-*.db-wal
+*.db*
 StudyNotes.slnx
